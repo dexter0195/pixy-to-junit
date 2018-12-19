@@ -7,6 +7,7 @@ import json
 class SourceTreeNavigator:
     index = "index.php"
     rootDir = "/home/alessio/schoolmate-dir"
+    jsonFile = "/home/alessio/my_repos/code_gen/result.json"
 
     switchRe = re.compile(r'.*switch\ *\(.*')
 
@@ -17,16 +18,18 @@ class SourceTreeNavigator:
 
     def walk(self, file):
 
+        fullpath = os.path.join(self.rootDir,file)
+
         subtree = {
             "PageName": file,
             "varName" : "",
             "varValue" : "",
-            "childs": []
+            "children": []
         }
 
         try:
-            with open(file, "r") as f:
-                lines = f.readlines()
+            with open(fullpath, "r") as f:
+                lines = [x.strip() for x in f.readlines()]
         except FileNotFoundError:
             return {}
 
@@ -35,13 +38,15 @@ class SourceTreeNavigator:
             if self.switchRe.match(lines[i]):
 
                 if subtree["varName"] == "":
-                    subtree["varName"] = re.sub(r'\s*switch\ *\(\$(\S*)\).*',r'\1',lines[i]).strip()
+                    varName = re.sub(r'\s*switch\ *\(\$(\S*)\).*',r'\1',lines[i])
 
                 while "default:" not in lines[i] or "}" not in lines[i]:
                     if "require_once" in lines[i]:
-                        nextNode = re.sub(r'\s*[^"]*\"(\S*)\".*',r'\1',lines[i]).strip()
-                        subtree["childs"].append(self.walk(os.path.join(self.rootDir,nextNode)))
-                        #TODO: call recursively on the next node
+                        nextNode = re.sub(r'\s*[^"]*\"(\S*)\".*',r'\1',lines[i])
+                        childNode = self.walk(nextNode)
+                        childNode["varValue"] = re.sub(r'\s*case\s*([0-9]+)+.*',r'\1',lines[i-1])
+                        childNode["varName"] = varName
+                        subtree["children"].append(childNode)
 
                     i += 1
                     if i >= len(lines):
@@ -51,7 +56,11 @@ class SourceTreeNavigator:
         return subtree
 
     def walksite(self):
-        path = os.path.join(self.rootDir, self.index)
-        pprint(self.walk(path))
+
+        result = self.walk(self.index)
+        with open(self.jsonFile, "w+") as jsonOut:
+            json.dump(result, jsonOut)
+
+        return result
 
 

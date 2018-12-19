@@ -6,6 +6,8 @@ from pprint import pprint
 
 class CodeGen:
 
+    srcRootDir = "/home/alessio/schoolmate-dir"
+
     def __init__(self):
         pass
 
@@ -18,7 +20,7 @@ class CodeGen:
 
     def findFormName(self, file):
 
-        path = os.path.join("/home/alessio/schoolmate-dir", file)
+        path = os.path.join(self.srcRootDir, file)
         lines = []
         forms = []
         with open(path, "r") as rootSource:
@@ -43,6 +45,28 @@ class CodeGen:
             # print(forms[0])
             return forms[0]
 
+    def findFormFields(self, file, formName):
+
+        formFields = []
+
+        with open(os.path.join(self.srcRootDir,file), "r") as f:
+            lines = f.readlines()
+            i = 0
+            while i < len(lines):
+                prova = lines[i]
+                if re.match("\s*<form.*name=\\\'"+formName,lines[i]):
+                    while "</form>" not in lines[i]:
+                        if "input" in lines[i] and "submit" not in lines[i]:
+                            formField = re.sub(r'.*name=\'(\S*)\'.*',r'\1',lines[i]).strip()
+                            formFields.append(formField)
+                        i += 1
+
+                else:
+                    i += 1
+        return formFields
+
+
+
 
     def evaluatetree(self, file):
 
@@ -65,6 +89,8 @@ class CodeGen:
                     file = re.sub(r'.*label=\"([a-zA-Z]*\.php).*',r'\1',i).strip()
                     row = int(re.sub(r'.*:\ ([0-9]+).*',r'\1', i).strip())
                     var = re.sub(r'.*POST\[(\S*)\].*',r'\1', i).strip()
+                    formName = self.findFormName(root["file"])
+                    formFields = self.findFormFields(root["file"],formName)
                     leafs.append({
                         "file" : file,
                         "row" : row,
@@ -73,20 +99,15 @@ class CodeGen:
                     return {
                         "root": root,
                         "leafs": leafs,
-                        "formname": self.findFormName(root["file"])
+                        "form": {
+                            "formname": formName,
+                            "form fields": formFields
+                        }
                     }
                 else:
                     #we found a persistent xss injection on mysql variables
                     return {}
 
-
-        # print(root)
-        # pprint(leafs)
-
-        # formName = self.findFormName(root)
-        # print("formname :", formName)
-        # for i in leafs:
-        #     print("Variable to taint :", i["var"])
 
     def getFiles(self, dir):
 
@@ -108,7 +129,5 @@ class CodeGen:
         for i in self.getFiles(dir):
             print(i)
             pprint(self.evaluatetree(i))
-
-        # print(dotfiles)
 
 
