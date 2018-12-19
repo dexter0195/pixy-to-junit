@@ -6,6 +6,7 @@ import sys
 
 codegen = CodeGen()
 codegen.doAllTheStuff(sys.argv[1])
+codegen.buildCode()
 print("Bye")
 
 pagewalk = SourceTreeNavigator()
