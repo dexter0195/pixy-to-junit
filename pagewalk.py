@@ -55,6 +55,22 @@ class SourceTreeNavigator:
                 i += 1
         return subtree
 
+    def findPathToPage(self, tree, pagename):
+        path = {}
+        if tree == {}:
+            return
+        else:
+            #TODO: qui da errore quando gli passo una lista di figli
+            if tree["PageName"] == pagename:
+                return tree
+            else:
+                if len(tree["children"]) > 0:
+                    for i in tree["children"]:
+                        temp = self.findPathToPage(i, pagename)
+                        if temp is not None:
+                            return temp
+                    return
+
     def walksite(self):
 
         result = self.walk(self.index)

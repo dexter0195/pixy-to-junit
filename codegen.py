@@ -1,12 +1,16 @@
 import re
 import os
-import collections
 from pprint import pprint
+from pagewalk import SourceTreeNavigator
 
 
 class CodeGen:
 
     srcRootDir = "/home/alessio/schoolmate-dir"
+    pagewalk = None
+
+    def __init__(self):
+        self.pagewalk = SourceTreeNavigator()
 
 
     def buildCode(self):
@@ -50,9 +54,6 @@ class CodeGen:
         '''
 
         print(code)
-
-    def __init__(self):
-        pass
 
     def removeDupForm(self, forms):
         if not forms:
@@ -123,29 +124,32 @@ class CodeGen:
 
         for i in lines:
             if "doubleoctagon" in i:
+                file = re.sub(r'.*label=\"([a-zA-Z]*\.php).*',r'\1',i).strip()
+                row = int(re.sub(r'.*:\ ([0-9]+).*',r'\1', i).strip())
+                formName = self.findFormName(file)
+                formFields = self.findFormFields(file, formName)
                 root = {
-                    "file": re.sub(r'.*label=\"([a-zA-Z]*\.php).*',r'\1',i).strip(),
-                    "row" : int(re.sub(r'.*:\ ([0-9]+).*',r'\1', i).strip())
+                    "file": file,
+                    "row" : row,
+                    "form": {
+                        "formname": formName,
+                        "form fields": formFields,
+                        "varPath": ""
+                    }
                 }
             if "filled" in i:
                 if "ellipse" not in i:
                     file = re.sub(r'.*label=\"([a-zA-Z]*\.php).*',r'\1',i).strip()
                     row = int(re.sub(r'.*:\ ([0-9]+).*',r'\1', i).strip())
                     var = re.sub(r'.*POST\[(\S*)\].*',r'\1', i).strip()
-                    formName = self.findFormName(root["file"])
-                    formFields = self.findFormFields(root["file"],formName)
                     leafs.append({
-                        "file" : file,
-                        "row" : row,
-                        "var" : var
+                        "file": file,
+                        "row": row,
+                        "var": var
                     })
                     return {
                         "root": root,
-                        "leafs": leafs,
-                        "form": {
-                            "formname": formName,
-                            "form fields": formFields
-                        }
+                        "leafs": leafs
                     }
                 else:
                     #we found a persistent xss injection on mysql variables
@@ -172,5 +176,9 @@ class CodeGen:
         for i in self.getFiles(dir):
             print(i)
             pprint(self.evaluatetree(i))
+
+        pprint(self.pagewalk.walksite())
+
+        pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ManageSchoolInfo.php"))
 
 
