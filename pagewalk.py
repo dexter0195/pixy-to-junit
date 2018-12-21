@@ -11,6 +11,8 @@ class SourceTreeNavigator:
 
     switchRe = re.compile(r'.*switch\ *\(.*')
 
+    pathFound = False
+
     tree = {}
 
     def __init__(self):
@@ -44,9 +46,10 @@ class SourceTreeNavigator:
                     if "require_once" in lines[i]:
                         nextNode = re.sub(r'\s*[^"]*\"(\S*)\".*',r'\1',lines[i])
                         childNode = self.walk(nextNode)
-                        childNode["varValue"] = re.sub(r'\s*case\s*([0-9]+)+.*',r'\1',lines[i-1])
-                        childNode["varName"] = varName
-                        subtree["children"].append(childNode)
+                        if childNode != {}:
+                            childNode["varValue"] = re.sub(r'\s*case\s*([0-9]+)+.*',r'\1',lines[i-1])
+                            childNode["varName"] = varName
+                            subtree["children"].append(childNode)
 
                     i += 1
                     if i >= len(lines):
@@ -55,21 +58,48 @@ class SourceTreeNavigator:
                 i += 1
         return subtree
 
+    # def findPathToPage(self, tree, pagename):
+    #     path = {
+    #         "page": "",
+    #         "page2": ""
+    #     }
+    #
+    #     if self.pathFound:
+    #         return
+    #     else:
+    #         if tree["PageName"] == pagename:
+    #             return tree
+    #         else:
+    #             if len(tree["children"]) > 0:
+    #                 for i in tree["children"]:
+    #                     temp = self.findPathToPage(i, pagename)
+    #                     if temp is not None:
+    #                         if not self.pathFound:
+    #                             path[temp["varName"]] = temp["varValue"]
+    #                             self.pathFound = True
+    #                             path["child"] = temp
+    #                         return path
+    #                     return
+
     def findPathToPage(self, tree, pagename):
+
         path = {}
-        if tree == {}:
-            return
+
+        if tree["PageName"] == pagename:
+            return tree
         else:
-            #TODO: qui da errore quando gli passo una lista di figli
-            if tree["PageName"] == pagename:
-                return tree
-            else:
-                if len(tree["children"]) > 0:
-                    for i in tree["children"]:
-                        temp = self.findPathToPage(i, pagename)
-                        if temp is not None:
-                            return temp
-                    return
+            for i in tree["children"]:
+                temp = self.findPathToPage(i, pagename)
+                if temp is not None:
+                    self.pathFound = True
+                    if tree["varName"] == "page":
+                        return {
+                            "page": tree["varValue"],
+                            "page2": temp["varValue"]
+                        }
+                    else:
+                        return temp
+
 
     def walksite(self):
 

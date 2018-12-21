@@ -12,34 +12,37 @@ class CodeGen:
     def __init__(self):
         self.pagewalk = SourceTreeNavigator()
 
+    def buildCode(self, page, page2, testNum, startPage, row, formName):
 
-    def buildCode(self):
-
+        page = "CIAO"
         page2 = "ciao"
-        admin = "CIAO"
 
-        code = '''package project.tests.TeachersPage.Roles.Admin.Test186;
+        imports = '''package project.tests.TeachersPage.Roles.Admin.Test186;
 
         import org.junit.*;
         import static org.junit.Assert.*;
         import project.tests.TeachersPage.Roles.Admin.TeacherAdminBaseTest;
+        '''
 
-        public class Test186FromAdminMain7 extends TeacherAdminBaseTest {
+        funcDeclaration = '''public class Test'''+testNum+'''From'''+startPage+row+''' extends TeacherAdminBaseTest { '''
+
+        testFunc = '''
 
 
             @Test
             public void test() {
 
                 String taintedVar = "'''+page2+'''";
-                String formName = "'''+admin+'''";
+                String formName = "'''+formName+'''";
 
                 //navigation
+                //login
                 goToLoginPage();
                 assertTrue(isLoginPage());
                 login(username, password);
                 assertTrue(isLoggedIn());
-                clickTeacherButton();
-                assertTrue(isTeacherPage());
+                //go to target page
+
 
                 //ATTACK
 
@@ -52,6 +55,8 @@ class CodeGen:
 
         }
         '''
+
+        code = ""
 
         print(code)
 
@@ -179,6 +184,6 @@ class CodeGen:
 
         pprint(self.pagewalk.walksite())
 
-        pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ManageSchoolInfo.php"))
+        pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ViewAssignments.php"))
 
 

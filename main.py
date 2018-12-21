@@ -6,6 +6,6 @@ import sys
 
 codegen = CodeGen()
 codegen.doAllTheStuff(sys.argv[1])
-codegen.buildCode()
+#codegen.buildCode()
 print("Bye")
 
