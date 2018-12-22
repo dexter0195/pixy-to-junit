@@ -111,7 +111,8 @@ class CodeGen:
                 prova = lines[i]
                 if re.match("\s*<form.*name=\\\'"+formName,lines[i]):
                     while "</form>" not in lines[i]:
-                        if "input" in lines[i] and "submit" not in lines[i]:
+
+                        if re.match(r'\s*<input\ *type=\'hidden\'.*',lines[i]):
                             formField = re.sub(r'.*name=\'(\S*)\'.*',r'\1',lines[i]).strip()
                             formFields.append(formField)
                         i += 1

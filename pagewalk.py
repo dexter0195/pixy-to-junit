@@ -71,20 +71,19 @@ class SourceTreeNavigator:
 
     def findPathToPage(self, tree, pagename):
 
-        path = {}
-
         if tree["PageName"] == pagename:
-            return tree
+            return {
+                tree["varName"]: tree["varValue"]
+            }
         else:
             for i in tree["children"]:
                 temp = self.findPathToPage(i, pagename)
                 if temp is not None:
                     self.pathFound = True
-                    #TODO fix here! guarda cosa succede quando si cerca per AdminMain
                     if tree["varName"] == "page":
                         return {
                             "page": tree["varValue"],
-                            "page2": temp["varValue"]
+                            "page2": temp["page2"]
                         }
                     else:
                         return temp
