@@ -12,10 +12,8 @@ class CodeGen:
     def __init__(self):
         self.pagewalk = SourceTreeNavigator()
 
-    def buildCode(self, page, page2, testNum, startPage, row, formName):
+    def buildCode(self, data):
 
-        page = "CIAO"
-        page2 = "ciao"
 
         imports = '''package project.tests.TeachersPage.Roles.Admin.Test186;
 
@@ -24,7 +22,7 @@ class CodeGen:
         import project.tests.TeachersPage.Roles.Admin.TeacherAdminBaseTest;
         '''
 
-        funcDeclaration = '''public class Test'''+testNum+'''From'''+startPage+row+''' extends TeacherAdminBaseTest { '''
+        funcDeclaration = '''public class Test'''+data["testNum"]+'''From'''+data["startPage"]+data["row"]+''' extends TeacherAdminBaseTest { '''
 
         testFunc = '''
 
@@ -32,14 +30,14 @@ class CodeGen:
             @Test
             public void test() {
 
-                String taintedVar = "'''+page2+'''";
-                String formName = "'''+formName+'''";
+                String taintedVar = "'''+data["page2"]+'''";
+                String formName = "'''+data["formName"]+'''";
 
                 //navigation
                 //login
                 goToLoginPage();
                 assertTrue(isLoginPage());
-                login(username, password);
+                login('''+data["username"]+","+data["password"]+''');
                 assertTrue(isLoggedIn());
                 //go to target page
 
@@ -59,6 +57,14 @@ class CodeGen:
         code = ""
 
         print(code)
+
+    def getCredentials(self, page):
+        users = {
+            "1" : {
+                "user" : "schoolmate",
+                "password": "schoolmate"
+            }
+        }
 
     def removeDupForm(self, forms):
         if not forms:
@@ -114,9 +120,6 @@ class CodeGen:
                     i += 1
         return formFields
 
-
-
-
     def evaluatetree(self, file):
 
         lines = []
@@ -139,7 +142,7 @@ class CodeGen:
                     "form": {
                         "formname": formName,
                         "form fields": formFields,
-                        "varPath": ""
+                        "varPath": self.pagewalk.findPathToPage(self.pagewalk.walksite(useCache=True), file)
                     }
                 }
             if "filled" in i:
@@ -182,8 +185,6 @@ class CodeGen:
             print(i)
             pprint(self.evaluatetree(i))
 
-        pprint(self.pagewalk.walksite())
-
-        pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ViewAssignments.php"))
+        # pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ViewAssignments.php"))
 
 

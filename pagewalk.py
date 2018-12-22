@@ -11,14 +11,24 @@ class SourceTreeNavigator:
 
     switchRe = re.compile(r'.*switch\ *\(.*')
 
+    cacheData = {}
+
     pathFound = False
 
     tree = {}
 
     def __init__(self):
-        pass
+        try:
+            with open(self.jsonFile, "r") as f:
+                self.cacheData = json.load(f)
+        except FileNotFoundError:
+            pass
 
-    def walk(self, file):
+    def walk(self, file, useCache=False):
+
+        if useCache:
+            return self.cacheData
+
 
         fullpath = os.path.join(self.rootDir,file)
 
@@ -58,28 +68,6 @@ class SourceTreeNavigator:
                 i += 1
         return subtree
 
-    # def findPathToPage(self, tree, pagename):
-    #     path = {
-    #         "page": "",
-    #         "page2": ""
-    #     }
-    #
-    #     if self.pathFound:
-    #         return
-    #     else:
-    #         if tree["PageName"] == pagename:
-    #             return tree
-    #         else:
-    #             if len(tree["children"]) > 0:
-    #                 for i in tree["children"]:
-    #                     temp = self.findPathToPage(i, pagename)
-    #                     if temp is not None:
-    #                         if not self.pathFound:
-    #                             path[temp["varName"]] = temp["varValue"]
-    #                             self.pathFound = True
-    #                             path["child"] = temp
-    #                         return path
-    #                     return
 
     def findPathToPage(self, tree, pagename):
 
@@ -92,6 +80,7 @@ class SourceTreeNavigator:
                 temp = self.findPathToPage(i, pagename)
                 if temp is not None:
                     self.pathFound = True
+                    #TODO fix here! guarda cosa succede quando si cerca per AdminMain
                     if tree["varName"] == "page":
                         return {
                             "page": tree["varValue"],
@@ -101,11 +90,12 @@ class SourceTreeNavigator:
                         return temp
 
 
-    def walksite(self):
+    def walksite(self, useCache=False):
 
-        result = self.walk(self.index)
-        with open(self.jsonFile, "w+") as jsonOut:
-            json.dump(result, jsonOut)
+        result = self.walk(self.index, useCache=useCache)
+        if not useCache:
+            with open(self.jsonFile, "w+") as jsonOut:
+                json.dump(result, jsonOut)
 
         return result
 
