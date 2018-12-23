@@ -44,7 +44,14 @@ class CodeGen:
                 assertTrue(isLoggedIn());
                 //go to target page
         '''
-        addFormFields = ''''''
+
+        createForm = '''
+                createFormWithName("'''+data["formName"]+'''");
+        '''
+        addFormFields = ""
+        for i in data["formFields"]:
+            addFormFields += '''        addFormFieldToForm("'''+data["formName"]+'''","'''+i+'''");
+        '''
 
         attack = '''
                 //ATTACK
@@ -54,7 +61,7 @@ class CodeGen:
         }
         '''
 
-        code = imports+funcDeclaration+testFuncHeaderAndLogin+addFormFields+attack
+        code = imports+funcDeclaration+testFuncHeaderAndLogin+createForm+addFormFields+attack
 
         print(code)
 
