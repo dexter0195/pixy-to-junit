@@ -15,56 +15,62 @@ class CodeGen:
     def buildCode(self, data):
 
 
-        imports = '''package project.tests.TeachersPage.Roles.Admin.Test186;
+
+        imports = '''
+        package project.tests.TeachersPage.Roles.Admin.Test186;
 
         import org.junit.*;
         import static org.junit.Assert.*;
         import project.tests.TeachersPage.Roles.Admin.TeacherAdminBaseTest;
         '''
 
-        funcDeclaration = '''public class Test'''+data["testNum"]+'''From'''+data["startPage"]+data["row"]+''' extends TeacherAdminBaseTest { '''
+        funcDeclaration = '''public class Test'''+data["testNum"]+'''From'''+\
+                          data["startPage"]+data["row"]+''' extends TeacherAdminBaseTest { '''
 
-        testFunc = '''
+        testFuncHeaderAndLogin = '''
 
 
             @Test
             public void test() {
 
-                String taintedVar = "'''+data["page2"]+'''";
+                String taintedVar = "'''+data["varToTaint"]+'''";
                 String formName = "'''+data["formName"]+'''";
 
                 //navigation
                 //login
                 goToLoginPage();
                 assertTrue(isLoginPage());
-                login('''+data["username"]+","+data["password"]+''');
+                login("'''+data["username"]+"\", \""+data["password"]+'''");
                 assertTrue(isLoggedIn());
                 //go to target page
+        '''
+        addFormFields = ''''''
 
-
+        attack = '''
                 //ATTACK
-
                 utils.inject(taintedVar,formName);
-
                 assertFalse(utils.isMaliciousLinkPresentInForm(formName));
-
             }
-
-
         }
         '''
 
-        code = ""
+        code = imports+funcDeclaration+testFuncHeaderAndLogin+addFormFields+attack
 
         print(code)
 
     def getCredentials(self, page):
         users = {
             "1" : {
-                "user" : "schoolmate",
+                # Admin
+                "user": "schoolmate",
                 "password": "schoolmate"
             }
         }
+
+        try:
+            return users[page]["user"], users[page]["password"]
+        except KeyError:
+            return "", ""
 
     def removeDupForm(self, forms):
         if not forms:
@@ -89,11 +95,11 @@ class CodeGen:
         forms = self.removeDupForm(forms)
 
         if len(forms) > 1:
-            print("multiple forms found")
-            print(forms)
-            return forms[0]
+            # print("multiple forms found")
+            # print(forms)
+            return ""
         elif len(forms) == 0:
-            print("no forms found")
+            # print("no forms found")
             return ""
         else:
             # print("the form is")
@@ -128,7 +134,7 @@ class CodeGen:
         leafs = []
         formName = ""
 
-        with open(file,"r") as dotFile:
+        with open(file, "r") as dotFile:
             lines = dotFile.readlines()
 
         for i in lines:
@@ -137,14 +143,16 @@ class CodeGen:
                 row = int(re.sub(r'.*:\ ([0-9]+).*',r'\1', i).strip())
                 formName = self.findFormName(file)
                 formFields = self.findFormFields(file, formName)
+                if formName == "" or formFields == []:
+                    return {}
                 root = {
                     "file": file,
-                    "row" : row,
+                    "row": row,
                     "form": {
                         "formname": formName,
-                        "form fields": formFields,
-                        "varPath": self.pagewalk.findPathToPage(self.pagewalk.walksite(useCache=True), file)
-                    }
+                        "formFields": formFields
+                    },
+                    "varPath": self.pagewalk.findPathToPage(self.pagewalk.walksite(useCache=True), file)
                 }
             if "filled" in i:
                 if "ellipse" not in i:
@@ -161,13 +169,12 @@ class CodeGen:
                         "leafs": leafs
                     }
                 else:
-                    #we found a persistent xss injection on mysql variables
+                    #we found a persistent xss injection on mysql variables which is not handled
                     return {}
 
 
     def getFiles(self, dir):
 
-        dotfiles = []
 
         # traverse root directory, and list directories as dirs and files as files
         for root, dirs, files in os.walk(dir):
@@ -176,15 +183,38 @@ class CodeGen:
                 if ".dot" in file:
                     if ".jpg" not in file:
                         f = os.path.join(root,file)
-                        dotfiles.append(f)
+                        yield f
 
-        return dotfiles
 
     def doAllTheStuff(self, dir):
 
-        for i in self.getFiles(dir):
-            print(i)
-            pprint(self.evaluatetree(i))
+        for file in self.getFiles(dir):
+            tree = self.evaluatetree(file)
+            if tree != {}:
+                for leaf in tree["leafs"]:
+                    if "page" in tree["root"]["varPath"].keys():
+                        page = tree["root"]["varPath"]["page"]
+                    else:
+                        page = ""
+                    if "page2" in tree["root"]["varPath"].keys():
+                        page2 = tree["root"]["varPath"]["page2"]
+                    else:
+                        page2 = ""
+
+                    username, password = self.getCredentials(page)
+                    prunedTree = {
+                        "targetPage": re.sub(r'\.php', r'', tree["root"]["file"]),
+                        "formName": tree["root"]["form"]["formname"],
+                        "formFields": tree["root"]["form"]["formFields"],
+                        "username": username,
+                        "password": password,
+                        "page2": page2,
+                        "varToTaint": leaf["var"],
+                        "startPage": re.sub(r'\.php', r'', leaf["file"]),
+                        "testNum": "",
+                        "row": ""
+                    }
+                    yield prunedTree
 
         # pprint(self.pagewalk.findPathToPage(self.pagewalk.walksite(), "ViewAssignments.php"))
 
