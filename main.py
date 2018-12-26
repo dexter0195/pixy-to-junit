@@ -2,15 +2,12 @@
 from pprint import pprint
 
 from codegen import CodeGen
-from pagewalk import SourceTreeNavigator
 import sys
 
 
 codegen = CodeGen()
-for i in codegen.doAllTheStuff(sys.argv[1]):
-    if i["username"] != "":
-        codegen.buildCode(i)
-# codegen.doAllTheStuff(sys.argv[1])
-#codegen.buildCode()
+
+count = codegen.doAllTheStuff(sys.argv[1])
+print("files generated:",count)
 print("Bye")
 
