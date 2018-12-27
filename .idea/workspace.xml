@@ -4,6 +4,7 @@
     <list default="true" id="acc8b44b-1079-4b98-a852-1c5016944cc4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/codegen.py" beforeDir="false" afterPath="$PROJECT_DIR$/codegen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,8 +29,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+            <state relative-caret-position="198">
+              <caret line="11" column="9" selection-start-line="11" selection-start-column="9" selection-end-line="11" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -37,8 +38,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/codegen.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="64" column="50" selection-start-line="64" selection-start-column="50" selection-end-line="64" selection-end-column="50" />
+            <state relative-caret-position="390">
+              <caret line="392" selection-start-line="392" selection-end-line="392" />
             </state>
           </provider>
         </entry>
@@ -77,8 +78,9 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="1079" />
     <option name="width" value="1920" />
-    <option name="height" value="1080" />
+    <option name="height" value="1" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -106,7 +108,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545905467209" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1545926214053" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../sectest_proj_generated" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -201,7 +203,7 @@
       <workItem from="1545408273741" duration="321000" />
       <workItem from="1545408895421" duration="11198000" />
       <workItem from="1545483898114" duration="28217000" />
-      <workItem from="1545724205669" duration="23638000" />
+      <workItem from="1545724205669" duration="30586000" />
     </task>
     <task id="LOCAL-00001" summary="adds form fields find and tree walk navigation">
       <created>1545239135241</created>
@@ -266,14 +268,21 @@
       <option name="project" value="LOCAL" />
       <updated>1545815222281</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="first stable releases but not automatic yet, still generates todo to review">
+      <created>1545905520328</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1545905520328</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="108813000" />
+    <option name="totallyTimeSpent" value="115761000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1080" extended-state="6" />
+    <frame x="0" y="24" width="1920" height="1056" extended-state="6" />
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="1" />
@@ -290,7 +299,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="8" visible="true" weight="0.3192389" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="8" visible="true" weight="0.318872" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.328" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5005359" side_tool="true" weight="0.3006536" />
@@ -362,7 +371,8 @@
     <MESSAGE value="updated buildCode Library, get credentials. doAllTheStuff now returns yields the elements, the same for evaluateTree." />
     <MESSAGE value="codegen now adds the form and form fields" />
     <MESSAGE value="codegen writes java files, adds findpostvars and findpagetitle functions, doallthestuff now does everything lol" />
-    <option name="LAST_COMMIT_MESSAGE" value="codegen writes java files, adds findpostvars and findpagetitle functions, doallthestuff now does everything lol" />
+    <MESSAGE value="first stable releases but not automatic yet, still generates todo to review" />
+    <option name="LAST_COMMIT_MESSAGE" value="first stable releases but not automatic yet, still generates todo to review" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -370,7 +380,7 @@
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <condition expression="data[&quot;page2&quot;] == &quot;&quot;" language="Python" />
           <url>file://$PROJECT_DIR$/codegen.py</url>
-          <line>57</line>
+          <line>60</line>
           <option name="timeStamp" value="53" />
         </line-breakpoint>
       </breakpoints>
@@ -482,15 +492,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="198">
+          <caret line="11" column="9" selection-start-line="11" selection-start-column="9" selection-end-line="11" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/codegen.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="64" column="50" selection-start-line="64" selection-start-column="50" selection-end-line="64" selection-end-column="50" />
+        <state relative-caret-position="390">
+          <caret line="392" selection-start-line="392" selection-end-line="392" />
         </state>
       </provider>
     </entry>

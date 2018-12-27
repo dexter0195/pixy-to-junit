@@ -15,7 +15,11 @@ class CodeGen:
     def buildCode(self, data):
 
         todo = ""
-        checkit = False
+
+        known_data = {
+            "selectclass": "7",
+            "student": "3"
+        }
 
 
 
@@ -39,14 +43,13 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
     public void test() {
 
         String taintedVar = "'''+data["varToTaint"]+'''";
-        String formName = "myform";
         String targetForm = "'''+data["targetForm"]+'''";
 
         //login
         goToLoginPage();
-        assertTrue(isLoginPage());
+        assertTrue("ERROR: cannot go to log in page", isLoginPage());
         login(getUsername(),getPassword());
-        assertTrue(isLoggedIn());
+        assertTrue("ERROR: cannot login", isLoggedIn());
         
         //create the custom form with navigation to target page'''
 
@@ -67,8 +70,12 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
             if data["varToTaint"] == i:
 
                 if "delete" not in i:
-                    addFormFields += '''utils.addFieldToMyFormWithValue("'''+i+'''","1");
+                    if i in known_data.keys():
+                        addFormFields += '''utils.addFieldToMyFormWithValue("'''+i+'''","'''+known_data[i]+'''");
             '''
+                    else:
+                        addFormFields += '''utils.addFieldToMyFormWithValue("'''+i+'''","1");
+                '''
                 else:
                     addFormFields += '''//utils.addFieldToMyFormWithValue("'''+i+'''","1");
             '''
@@ -80,14 +87,22 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
         '''
 
 
-
         attack = '''
         //ATTACK
-        utils.inject("'''+data["varToTaint"]+'''",formName);
+        utils.injectVarMyForm(taintedVar);
         '''
-        assertions = '''
-        assertTrue(utils.isTitleEqualsTo("'''+data["pageTitle"]+'''"));
-        assertFalse(utils.isMaliciousLinkPresentInForm(targetForm));
+
+        assertTitlePage = '''
+        assertTrue("ERROR: Title doesn't match",utils.isTitleEqualsTo(MainTitle));
+        '''
+        if data["pageTitle"] != "":
+            assertTitlePage += '''
+        //found possible title for page: '''+data["pageTitle"]+'''
+        
+        '''
+
+        assertAttack = '''
+        assertFalse("ERROR: Malicious link found",utils.isMaliciousLinkPresentInForm(targetForm));
         '''
 
         for i in data.keys():
@@ -108,7 +123,8 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
                + pageAndPage2Vars\
                + addFormFields\
                + attack\
-               + assertions\
+               + assertTitlePage\
+               + assertAttack\
                + todo\
                + closingBrackets
 
@@ -326,9 +342,7 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
             for file in self.getFiles(path):
                 for tree in self.buidInfoTree(file):
                     if tree["username"] != "":
-                        # pprint(i)
                         self.output(tree, self.buildCode(tree), overwrite=True)
-                        # print("=========================")
                         count += 1
         else:
             for tree in self.buidInfoTree(path):
