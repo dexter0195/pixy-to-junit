@@ -14,71 +14,91 @@ class CodeGen:
 
     def buildCode(self, data):
 
+        todo = ""
+        checkit = False
+
 
 
 # TODO: fix the package according to the directory structure!!
         imports = '''
-        package project.tests.TeachersPage.Roles.Admin.Test'''+data["testNum"]+''';
+package project.tests.'''+data["role"]+'''.Test'''+data["testNum"]+''';
 
-        import org.junit.*;
-        import static org.junit.Assert.*;
-        import project.tests.TeachersPage.Roles.Admin.TeacherAdminBaseTest;
+import org.junit.*;
+import static org.junit.Assert.*;
+import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
         
-        '''
+'''
 
         funcDeclaration = '''public class Test'''+data["testNum"]+'''From'''+\
-                          data["startPage"]+str(data["row"])+''' extends TeacherAdminBaseTest { '''
+                          data["startPage"]+str(data["row"])+''' extends '''+data["role"]+'''BaseTest { '''
 
         testFuncHeaderAndLogin = '''
 
 
-            @Test
-            public void test() {
+    @Test
+    public void test() {
 
-                String taintedVar = "'''+data["varToTaint"]+'''";
-                String formName = "myform";
-                String targetForm = "'''+data["targetForm"]+'''";
+        String taintedVar = "'''+data["varToTaint"]+'''";
+        String formName = "myform";
+        String targetForm = "'''+data["targetForm"]+'''";
 
-                //navigation
-                //login
-                goToLoginPage();
-                assertTrue(isLoginPage());
-                login("'''+data["username"]+"\", \""+data["password"]+'''");
-                assertTrue(isLoggedIn());
-                //go to target page
-        '''
+        //login
+        goToLoginPage();
+        assertTrue(isLoginPage());
+        login(getUsername(),getPassword());
+        assertTrue(isLoggedIn());
+        
+        //create the custom form with navigation to target page'''
 
         createForm = '''
-                utils.createMyForm();
+        utils.createMyForm();
         '''
         pageAndPage2Vars = ""
         for var in ["page", "page2"]:
-            pageAndPage2Vars += '''        utils.addFieldToMyFormWithValue(formName,"'''+var+'''","'''+data[var]+'''");
+            pageAndPage2Vars += '''utils.addFieldToMyFormWithValue("'''+var+'''","'''+data[var]+'''");
         '''
         addFormFields = ""
         for i in data["postVars"]:
             if i == "page" or i == "page2":
                 continue
-            addFormFields += '''        utils.addFieldToMyFormWithValue(formName,"'''+i+'''","1");
+
+            todo += "\n// TODO: check added field: "+i+"\n"
+
+            if data["varToTaint"] == i:
+
+                if "delete" not in i:
+                    addFormFields += '''utils.addFieldToMyFormWithValue("'''+i+'''","1");
+            '''
+                else:
+                    addFormFields += '''//utils.addFieldToMyFormWithValue("'''+i+'''","1");
+            '''
+                    todo += '''// TODO: there is a delete, check it and do the restore
+                '''
+
+            else:
+                addFormFields += '''//utils.addFieldToMyFormWithValue("'''+i+'''","1");
         '''
+
+
 
         attack = '''
-                //ATTACK
-                utils.inject("'''+data["varToTaint"]+'''",formName);
-                '''
+        //ATTACK
+        utils.inject("'''+data["varToTaint"]+'''",formName);
+        '''
         assertions = '''
-                assertTrue(utils.isTitleEqualsTo("'''+data["pageTitle"]+'''"));
-                assertFalse(utils.isMaliciousLinkPresentInForm(targetForm));
+        assertTrue(utils.isTitleEqualsTo("'''+data["pageTitle"]+'''"));
+        assertFalse(utils.isMaliciousLinkPresentInForm(targetForm));
         '''
 
-        todo = ""
         for i in data.keys():
             if data[i] == "":
-                todo += "\n// TODO: check field:"+i+"\n"
+                todo += '''// TODO: check field missing:'''+i+'''
+        '''
+
 
         closingBrackets = '''
-            }
-        }
+    }
+}
         '''
 
         code = imports\
@@ -101,6 +121,26 @@ class CodeGen:
                 "role": "Admin",
                 "username": "schoolmate",
                 "password": "schoolmate"
+            },
+            "2": {
+                "role": "Teacher",
+                "username": "teacher",
+                "password": "teacher"
+            },
+            "3": {
+                "role": "Substitute",
+                "username": "substitute",
+                "password": "substitute"
+            },
+            "4": {
+                "role": "Student",
+                "username": "student",
+                "password": "student"
+            },
+            "5": {
+                "role": "Parent",
+                "username": "parent",
+                "password": "parent"
             }
         }
 
@@ -156,7 +196,7 @@ class CodeGen:
         for i in lines:
             if "<h1>" in i:
                 h1 = re.sub(r'[^<]*<h1>([^<]*)</h1>.*',r'\1',i).strip()
-                print("header is ", h1)
+                # print("header is ", h1)
         return h1
 
     def findPostVars(self, file):
@@ -270,14 +310,13 @@ class CodeGen:
         file = os.path.join(directory,data["outputJavaFile"])
         if not overwrite:
             if not os.path.isfile(file):
-                with open(file,"w+") as f:
+                with open(file ,"w+") as f:
                     f.write(code)
                 print("creating file ", file)
         else:
-            if not os.path.isfile(file):
-                with open(file,"w+") as f:
-                    f.write(code)
-                print("overwriting file ", file)
+            with open(file ,"w+") as f:
+                f.write(code)
+            print("overwriting file ", file)
 
 
     def doAllTheStuff(self, path):
@@ -288,12 +327,12 @@ class CodeGen:
                 for tree in self.buidInfoTree(file):
                     if tree["username"] != "":
                         # pprint(i)
-                        self.output(tree, self.buildCode(tree), overwrite=False)
+                        self.output(tree, self.buildCode(tree), overwrite=True)
                         # print("=========================")
                         count += 1
         else:
             for tree in self.buidInfoTree(path):
-                self.output(tree, self.buildCode(tree), overwrite=False)
+                self.output(tree, self.buildCode(tree), overwrite=True)
                 count += 1
 
         return count
