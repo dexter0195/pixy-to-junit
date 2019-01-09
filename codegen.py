@@ -2,6 +2,7 @@ import re
 import os
 from pprint import pprint
 from pagewalk import SourceTreeNavigator
+from subprocess import call
 
 
 class CodeGen:
@@ -334,8 +335,16 @@ import project.tests.'''+data["role"]+'''.'''+data["role"]+'''BaseTest;
                 f.write(code)
             print("overwriting file ", file)
 
+    def commitActualCode(self):
+
+        prev_dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir("/home/alessio/my_repos/sectest_proj_generated")
+        call(["git","commit","-a","-m", "autocommit"])
+        os.chdir(prev_dir)
 
     def doAllTheStuff(self, path):
+
+        self.commitActualCode()
 
         count = 0
         if os.path.isdir(path):
